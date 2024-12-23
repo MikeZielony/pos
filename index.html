@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wymiana terminala POS</title>
+    <style>
+        body {
+            font-family: 'Arial', Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        header {
+            background-color: #d82428;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 10px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2, h1 {
+            background-color: #d82428;
+            color: white;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        select {
+            width: 50%;
+        }
+
+        textarea {
+            height: 200px;
+            background: #f9f9f9;
+        }
+
+        button {
+            background-color: #d82428;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #b61c20;
+        }
+
+        pre {
+            background: #f9f9f9;
+            padding: 1px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow-x:scroll;
+        }
+
+        .difference {
+            background-color: #ffe8e8;
+            color: #b61c20;
+            border-left: 4px solid #d82428;
+            padding: 5px;
+            margin-bottom: 5px;
+            margin-top:0%;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<header>
+    <h1>Wymiana terminala POS by MZI</h1>
+</header>
+<main>
+    <label for="object2">Stary Terminal:</label>
+    <select id="object1" onchange="updateTextarea(1)">
+        <option value="PaxA920PRO">Pax A920PRO</option>
+        <option value="PAX_920">PAX 920</option>
+        <option value="IWL_220">IWL 220</option>
+        <option value="IWL_250">IWL 250</option>
+        <option value="PAX_A50">PAX A50</option>
+        <option value="PAX_A35">PAX A35</option>
+        <option value="VX_510_INTERNET">VX 510 INTERNET</option>
+        <option value="VX_510_GPRS">VX 510 GPRS</option>
+        <option value="VX_520_INTERNET">VX 520 INTERNET</option>
+        <option value="VX_520_GPRS">VX 520 GPRS</option>
+        <option value="ICT_220_INTERNET">ICT 220 INTERNET</option>
+        <option value="ICT_220_GPRS">ICT 220 GPRS</option>
+        <option value="VX_675_GPRS_wew">VX 675 GPRS wew</option>
+        <option value="VX_680_GPRS_wew">VX 680 GPRS wew</option>
+    </select>
+
+    <textarea id="json1" readonly></textarea>
+
+    <label for="object2">Nowy Terminal:</label>
+    <select id="object2" onchange="updateTextarea(2)">
+        <option value="PaxA920PRO">Pax A920PRO</option>
+        <option value="PAX_920">PAX 920</option>
+        <option value="IWL_220">IWL 220</option>
+        <option value="IWL_250">IWL 250</option>
+        <option value="PAX_A50">PAX A50</option>
+        <option value="PAX_A35">PAX A35</option>
+        <option value="VX_510_INTERNET">VX 510 INTERNET</option>
+        <option value="VX_510_GPRS">VX 510 GPRS</option>
+        <option value="VX_520_INTERNET">VX 520 INTERNET</option>
+        <option value="VX_520_GPRS">VX 520 GPRS</option>
+        <option value="ICT_220_INTERNET">ICT 220 INTERNET</option>
+        <option value="ICT_220_GPRS">ICT 220 GPRS</option>
+        <option value="VX_675_GPRS_wew">VX 675 GPRS wew</option>
+        <option value="VX_680_GPRS_wew">VX 680 GPRS wew</option>
+    </select>
+
+    <textarea id="json2" readonly></textarea>
+
+    <button onclick="compareJSON()">Wymień terminal</button>
+    <h2>Różnice do zmiany w Atomie:</h2>
+    <pre id="output"></pre>
+</main>
+    <script>
+        const examples = {
+            PaxA920PRO: {
+                name: "PAX 920 Pro",
+                rodzaj_lacznosci: "GPRS",
+                rodzaj_lacznosci_BACK_UP: "GPRS",
+                Adres_IP_hosta: "Standard",
+                Adres_IP_hosta_BACK_UP: "Standard",
+                Czytnik: "CTLS wewnetrzny",
+                Nazwa_APN_dla_terminali_GPRS: "PEKAO.pos.pekao.pl",
+                Potwierdzenie_transakcji_dla_posiadacza_karty: "Wydruk papierowy(Domyślnie)",
+                Potwierdzenie_transakcji_i_RT_dla_akceptanta: "Wydruk papierowy(Domyślnie)"
+            },
+            PAX_920: {
+                name: "PAX 920",
+                rodzaj_lacznosci: "GPRS",
+                rodzaj_lacznosci_BACK_UP: "GPRS",
+                Adres_IP_hosta: "Standard",
+                Adres_IP_hosta_BACK_UP: "Standard",
+                Czytnik: "CTLS wewnetrzny",
+                Nazwa_APN_dla_terminali_GPRS: "PEKAO.pos.pekao.pl",
+                Potwierdzenie_transakcji_dla_posiadacza_karty: "Wydruk papierowy(Domyślnie)",
+                Potwierdzenie_transakcji_i_RT_dla_akceptanta: "Wydruk papierowy(Domyślnie)"
+            },
+            IWL_220: {
+                name: "IWL 220",
+                rodzaj_lacznosci: "GPRS",
+                rodzaj_lacznosci_BACK_UP: "GPRS",
+                Adres_IP_hosta: "Standard",
+                Adres_IP_hosta_BACK_UP: "Standard",
+                Czytnik: "CTLS wewnetrzny",
+                Nazwa_APN_dla_terminali_GPRS: "PEKAO.pos.pekao.pl"
+            },
+            IWL_250: {
+                name: "IWL 220",
+                rodzaj_lacznosci: "GPRS",
+                rodzaj_lacznosci_BACK_UP: "GPRS",
+                Adres_IP_hosta: "Standard",
+                Adres_IP_hosta_BACK_UP: "Standard",
+                Czytnik: "CTLS wewnetrzny",
+                Nazwa_APN_dla_terminali_GPRS: "PEKAO.pos.pekao.pl"
+            },
+            PAX_A50: {
+                name: "PAX A50",
+                rodzaj_lacznosci: "GPRS",
+                rodzaj_lacznosci_BACK_UP: "GPRS",
+                Adres_IP_hosta: "Standard",
+                Adres_IP_hosta_BACK_UP: "Standard",
+                Czytnik: "CTLS wewnetrzny",
+                Nazwa_APN_dla_terminali_GPRS: "PEKAO.pos.pekao.pl",
+                Potwierdzenie_transakcji_dla_posiadacza_karty: "E-mail lub SMS",
+                Potwierdzenie_transakcji_i_RT_dla_akceptanta: "E-mail"
+            },
+            PAX_A35: {
+                name: "PAX A35",
+                rodzaj_lacznosci: "TCP/IP",
+                rodzaj_lacznosci_BACK_UP: "TCP/IP",
+                dynamiczna_adresacja: "NIE",
+                Adres_IP_hosta: "Internet",
+                Adres_IP_hosta_BACK_UP: "Internet",
+                Czytnik: "CTLS wewnetrzny"
+            },
+            VX_510_INTERNET: {
+                name: "VX 510 INTERNET",
+                rodzaj_lacznosci: "TCP/IP",
+                rodzaj_lacznosci_BACK_UP: "TCP/IP",
+                dynamiczna_adresacja: "TAK",
+                Adres_IP_hosta: "Internet",
+                Adres_IP_hosta_BACK_UP: "Internet",
+                Czytnik: "CTLS Verifone PP1000SE"
+            },
+            VX_510_GPRS: {
+                name: "VX 510 GPRS",
+                rodzaj_lacznosci: "GPRS",
+                rodzaj_lacznosci_BACK_UP: "GPRS",
+                Adres_IP_hosta: "Standard",
+                Adres_IP_hosta_BACK_UP: "Standard",
+                Czytnik: "CTLS Verifone PP1000SE",
+                Nazwa_APN_dla_terminali_GPRS: "PEKAO.pos.pekao.pl"
+            },
+            VX_520_INTERNET: {
+                name: "VX 520 INTERNET",
+                rodzaj_lacznosci: "TCP/IP",
+                rodzaj_lacznosci_BACK_UP: "TCP/IP",
+                dynamiczna_adresacja: "TAK",
+                Adres_IP_hosta: "Internet",
+                Adres_IP_hosta_BACK_UP: "Internet",
+                Czytnik: "CTLS Verifone PP1000SE"
+            },
+            VX_520_GPRS: {
+                name: "VX 520 GPRS",
+                rodzaj_lacznosci: "GPRS",
+                rodzaj_lacznosci_BACK_UP: "GPRS",
+                Adres_IP_hosta: "Standard",
+                Adres_IP_hosta_BACK_UP: "Standard",
+                Czytnik: "CTLS Verifone PP1000SE",
+                Nazwa_APN_dla_terminali_GPRS: "PEKAO.pos.pekao.pl"
+            },
+            ICT_220_INTERNET: {
+                name: "ICT_220 INTERNET",
+                rodzaj_lacznosci: "TCP/IP",
+                rodzaj_lacznosci_BACK_UP: "TCP/IP",
+                dynamiczna_adresacja: "TAK",
+                Adres_IP_hosta: "Internet",
+                Adres_IP_hosta_BACK_UP: "Internet",
+                Czytnik: "CTLS IPP220"
+            },
+            ICT_220_GPRS: {
+                name: "ICT_220 GPRS",
+                rodzaj_lacznosci: "GPRS",
+                rodzaj_lacznosci_BACK_UP: "GPRS",
+                Adres_IP_hosta: "Standard",
+                Adres_IP_hosta_BACK_UP: "Standard",
+                Czytnik: "CTLS IPP220",
+                Nazwa_APN_dla_terminali_GPRS: "PEKAO.pos.pekao.pl"
+            },
+            VX_675_GPRS_wew: {
+                name: "VX 675 GPRS wew",
+                rodzaj_lacznosci: "GPRS",
+                rodzaj_lacznosci_BACK_UP: "GPRS",
+                Adres_IP_hosta: "Standard",
+                Adres_IP_hosta_BACK_UP: "Standard",
+                Czytnik: "CTLS wewnętrzny",
+                Nazwa_APN_dla_terminali_GPRS: "PEKAO.pos.pekao.pl"
+            },
+            VX_680_GPRS_wew: {
+                name: "VX_680 GPRS_wew",
+                rodzaj_lacznosci: "GPRS",
+                rodzaj_lacznosci_BACK_UP: "GPRS",
+                Adres_IP_hosta: "Standard",
+                Adres_IP_hosta_BACK_UP: "Standard",
+                Czytnik: "CTLS wewnętrzny",
+                Nazwa_APN_dla_terminali_GPRS: "PEKAO.pos.pekao.pl"
+            },
+        };
+
+        function updateTextarea(objectNumber) {
+            const select = document.getElementById(`object${objectNumber}`);
+            const textarea = document.getElementById(`json${objectNumber}`);
+            const selectedExample = examples[select.value];
+            textarea.value = JSON.stringify(selectedExample, null, 2);
+        }
+
+        function compareJSON() {
+            const json1Text = document.getElementById("json1").value;
+            const json2Text = document.getElementById("json2").value;
+            const output = document.getElementById("output");
+
+            try {
+                const json1 = JSON.parse(json1Text);
+                const json2 = JSON.parse(json2Text);
+
+                const differences = findDifferences(json1, json2);
+
+                if (differences.length === 0) {
+                    output.textContent = "Brak różnic - terminale mają identyczne ustawienia.";
+                } else {
+                    output.innerHTML = differences.map(diff => 
+                        `<div class="difference">${diff}</div>`
+                    ).join("");
+                }
+            } catch (error) {
+                output.textContent = "Niepoprawny format JSON!";
+            }
+        }
+
+        function findDifferences(obj1, obj2, path = "") {
+            let differences = [];
+
+            for (let key in obj1) {
+                const fullPath = path ? `${path}.${key}` : key;
+
+                if (!(key in obj2)) {
+                    differences.push(`Puste pole w ${obj2.name}: ${fullPath}`);
+                } else if (typeof obj1[key] === "object" && obj1[key] !== null) {
+                    differences = differences.concat(findDifferences(obj1[key], obj2[key], fullPath));
+                } else if (obj1[key] !== obj2[key]) {
+                    differences.push(`Różnica w ustawieniach  ${fullPath}: ${obj1.name} = ${obj1[key]}, ma być  ${obj2.name} = ${obj2[key]}`);
+                    // differences.push(`Ma być  ${fullPath} ${obj2.name} = ${obj2[key]}`);
+                }
+            }
+
+            for (let key in obj2) {
+                const fullPath = path ? `${path}.${key}` : key;
+                if (!(key in obj1)) {
+                    differences.push(`Puste pole w ${obj1.name} ${fullPath}, w ${obj2.name} ma być ${obj2[key]}`);
+                }
+            }
+
+            return differences;
+        }
+    
+        updateTextarea(1);
+        updateTextarea(2);
+    </script>
+</body>
+</html>
