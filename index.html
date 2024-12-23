@@ -103,6 +103,7 @@
 <main>
     <label for="object2">Stary Terminal:</label>
     <select id="object1" onchange="updateTextarea(1)">
+        <option value="brak">brak</option>
         <option value="PaxA920PRO">Pax A920PRO</option>
         <option value="PAX_920">PAX 920</option>
         <option value="IWL_220">IWL 220</option>
@@ -123,6 +124,7 @@
 
     <label for="object2">Nowy Terminal:</label>
     <select id="object2" onchange="updateTextarea(2)">
+        <option value="brak">brak</option>
         <option value="PaxA920PRO">Pax A920PRO</option>
         <option value="PAX_920">PAX 920</option>
         <option value="IWL_220">IWL 220</option>
@@ -147,6 +149,9 @@
 </main>
     <script>
         const examples = {
+            brak: {
+                
+            },
             PaxA920PRO: {
                 name: "PAX 920 Pro",
                 rodzaj_lacznosci: "GPRS",
